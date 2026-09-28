@@ -67,6 +67,12 @@ class PlaybackController : public QObject
         )
 
     Q_PROPERTY(
+        double heading
+            READ heading
+                NOTIFY currentPositionChanged
+        )
+
+    Q_PROPERTY(
         QVariantList traveledPath
             READ traveledPath
                 NOTIFY currentPositionChanged
@@ -99,6 +105,7 @@ public:
     double latitude() const;
     double longitude() const;
     double altitude() const;
+    double heading() const;
 
     QVariantList traveledPath() const;
 

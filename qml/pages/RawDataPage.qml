@@ -1,73 +1,14 @@
 import QtQuick
-import QtQuick.Controls as Controls
 
 Rectangle {
     id: root
 
-    signal mapRequested()
-
     color: "#0f172a"
-
-    Rectangle {
-        id: appHeader
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        height: 44
-        color: "#111827"
-
-        Text {
-            anchors.centerIn: parent
-
-            color: "#f8fafc"
-
-            font.family: "Inter"
-            font.pixelSize: 20
-            font.weight: Font.DemiBold
-
-            text: qsTr("LogViewer")
-        }
-    }
-
-    Rectangle {
-        id: tabBar
-
-        anchors.top: appHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        height: 44
-        color: "#111827"
-
-        Row {
-            anchors.left: parent.left
-            anchors.leftMargin: 24
-
-            height: parent.height
-
-            TabButton {
-                text: qsTr("Harita")
-                active: false
-
-                onClicked: root.mapRequested()
-            }
-
-            TabButton {
-                text: qsTr("Ham Veri")
-                active: true
-            }
-        }
-    }
 
     Rectangle {
         id: rawDataContent
 
-        anchors.top: tabBar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.fill: parent
 
         color: "#172033"
 

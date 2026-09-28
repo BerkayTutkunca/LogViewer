@@ -73,7 +73,7 @@ qt_add_executable(
 target_include_directories(
     appLogViewer
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${SRC_DIR}
 )
 
 target_compile_features(
@@ -107,8 +107,12 @@ set(APP_QML_FILES
     qml/pages/RawDataPage.qml
 )
 
-# All components are exposed at the root of the LogViewer
-# QML module, regardless of their physical directory.
+set(APP_RESOURCE_FILES
+    qml/assets/drone.svg
+)
+
+# All QML components are exposed at the root of the
+# LogViewer QML module, regardless of their physical directory.
 foreach(qml_file IN LISTS APP_QML_FILES)
     get_filename_component(qml_name "${qml_file}" NAME)
 
@@ -119,6 +123,13 @@ foreach(qml_file IN LISTS APP_QML_FILES)
     )
 endforeach()
 
+# Expose the drone icon with a simple resource path.
+set_source_files_properties(
+    qml/assets/drone.svg
+    PROPERTIES
+        QT_RESOURCE_ALIAS "drone.svg"
+)
+
 qt_add_qml_module(
     appLogViewer
 
@@ -127,6 +138,9 @@ qt_add_qml_module(
 
     QML_FILES
         ${APP_QML_FILES}
+
+    RESOURCES
+        ${APP_RESOURCE_FILES}
 )
 
 # ---------------------------------------------------------

@@ -65,6 +65,17 @@ double PlaybackController::altitude() const
     return m_positions.at(index).altitudeMeters;
 }
 
+double PlaybackController::heading() const
+{
+    const int index = currentPositionIndex();
+
+    if (index < 0) {
+        return 0.0;
+    }
+
+    return m_positions.at(index).headingDegrees;
+}
+
 bool PlaybackController::hasRoute() const
 {
     return !m_positions.isEmpty();

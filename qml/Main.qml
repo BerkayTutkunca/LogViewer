@@ -34,10 +34,81 @@ Window {
         }
     }
 
+    Rectangle {
+        id: appHeader
+
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        height: 44
+
+        visible:
+            root.currentPage !== root.fileOpenPage
+
+        color: "#111827"
+
+        Text {
+            anchors.centerIn: parent
+
+            text: qsTr("LogViewer")
+
+            color: "#f8fafc"
+
+            font.family: "Inter"
+            font.pixelSize: 20
+            font.weight: Font.DemiBold
+        }
+    }
+
+    Rectangle {
+        id: tabBar
+
+        anchors.top: appHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        height: 44
+
+        visible:
+            root.currentPage !== root.fileOpenPage
+
+        color: "#111827"
+
+        Row {
+            anchors.left: parent.left
+            anchors.leftMargin: 24
+
+            height: parent.height
+
+            TabButton {
+                text: qsTr("Harita")
+
+                active:
+                    root.currentPage === root.mapPage
+
+                onClicked: {
+                    root.currentPage = root.mapPage
+                }
+            }
+
+            TabButton {
+                text: qsTr("Ham Veri")
+
+                active:
+                    root.currentPage === root.rawDataPage
+
+                onClicked: {
+                    root.currentPage = root.rawDataPage
+                }
+            }
+        }
+    }
+
     Item {
         id: viewerContent
 
-        anchors.top: parent.top
+        anchors.top: tabBar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: timelineControl.top
@@ -52,10 +123,6 @@ Window {
 
             visible:
                 root.currentPage === root.mapPage
-
-            onRawDataRequested: {
-                root.currentPage = root.rawDataPage
-            }
         }
 
         RawDataPage {
@@ -65,10 +132,6 @@ Window {
 
             visible:
                 root.currentPage === root.rawDataPage
-
-            onMapRequested: {
-                root.currentPage = root.mapPage
-            }
         }
     }
 

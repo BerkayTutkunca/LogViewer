@@ -7,76 +7,19 @@ Rectangle {
 
     property bool followVehicle: true
 
-    signal rawDataRequested()
-
     color: "#0f172a"
-
-    Rectangle {
-        id: appHeader
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        height: 44
-        color: "#111827"
-
-        Text {
-            anchors.centerIn: parent
-
-            color: "#f8fafc"
-
-            font.family: "Inter"
-            font.pixelSize: 20
-            font.weight: Font.DemiBold
-
-            text: qsTr("LogViewer")
-        }
-    }
-
-    Rectangle {
-        id: tabBar
-
-        anchors.top: appHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        height: 44
-        color: "#111827"
-
-        Row {
-            anchors.left: parent.left
-            anchors.leftMargin: 24
-
-            height: parent.height
-
-            TabButton {
-                text: qsTr("Harita")
-                active: true
-            }
-
-            TabButton {
-                text: qsTr("Ham Veri")
-                active: false
-
-                onClicked: root.rawDataRequested()
-            }
-        }
-    }
 
     Rectangle {
         id: mapContent
 
-        anchors.top: tabBar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.fill: parent
 
         color: "#1e293b"
         clip: true
 
         Plugin {
             id: mapPlugin
+
             name: "osm"
         }
 
@@ -111,12 +54,17 @@ Rectangle {
                 }
 
                 onTranslationChanged: function(delta) {
-                    map.pan(-delta.x, -delta.y)
+                    map.pan(
+                        -delta.x,
+                        -delta.y
+                    )
                 }
             }
 
             MapPolyline {
                 id: flightPath
+
+                z: 1
 
                 line.width: 4
                 line.color: "#3a6ea5"
@@ -128,6 +76,8 @@ Rectangle {
             MapQuickItem {
                 id: vehicleMarker
 
+                z: 2
+
                 visible:
                     appController.playbackController.hasPosition
 
@@ -136,29 +86,42 @@ Rectangle {
                     appController.playbackController.longitude
                 )
 
-                anchorPoint.x: marker.width / 2
-                anchorPoint.y: marker.height / 2
+                anchorPoint.x: markerItem.width / 2
+                anchorPoint.y: markerItem.height / 2
 
-                sourceItem: Rectangle {
-                    id: marker
+                sourceItem: Item {
+                    id: markerItem
 
-                    width: 18
-                    height: 18
-                    radius: width / 2
-
-                    color: "#3a6ea5"
-
-                    border.width: 3
-                    border.color: "#ffffff"
+                    width: 48
+                    height: 48
 
                     Rectangle {
                         anchors.centerIn: parent
 
-                        width: 5
-                        height: 5
-                        radius: width / 2
+                        width: 36
+                        height: 36
+                        radius: 18
 
                         color: "#ffffff"
+                        opacity: 0.75
+                    }
+
+                    Image {
+                        id: droneIcon
+
+                        anchors.centerIn: parent
+
+                        width: 42
+                        height: 42
+
+                        source: "qrc:/qt/qml/LogViewer/drone.svg"
+
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        mipmap: true
+
+                        rotation:
+                            appController.playbackController.heading
                     }
                 }
             }

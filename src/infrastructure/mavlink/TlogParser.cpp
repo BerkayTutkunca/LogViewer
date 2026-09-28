@@ -358,6 +358,11 @@ bool TlogParser::parse(
                     position.altitudeMeters =
                         rawPosition.alt / 1000.0;
 
+                    position.headingDegrees =
+                        rawPosition.hdg == UINT16_MAX
+                            ? 0.0
+                            : rawPosition.hdg / 100.0;
+
                     entry.setPosition(position);
                 }
 

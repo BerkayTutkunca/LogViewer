@@ -10,6 +10,7 @@ struct GeoPosition
     double latitude {};
     double longitude {};
     double altitudeMeters {};
+    double headingDegrees {};
 };
 
 class LogEntry
