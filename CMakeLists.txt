@@ -42,23 +42,27 @@ target_compile_definitions(
 # Application sources
 # ---------------------------------------------------------
 
+set(SRC_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 set(APP_SOURCES
-    src/main.cpp
+    ${SRC_DIR}/main.cpp
 
-    src/application/AppController.h
-    src/application/AppController.cpp
+    ${SRC_DIR}/application/AppController.h
+    ${SRC_DIR}/application/AppController.cpp
 
-    src/domain/LogEntry.h
-    src/domain/LogEntry.cpp
+    ${SRC_DIR}/domain/LogEntry.h
+    ${SRC_DIR}/domain/LogEntry.cpp
 
-    src/models/RawDataModel.h
-    src/models/RawDataModel.cpp
+    ${SRC_DIR}/models/RawDataModel.h
+    ${SRC_DIR}/models/RawDataModel.cpp
 
-    src/playback/PlaybackController.h
-    src/playback/PlaybackController.cpp
+    ${SRC_DIR}/playback/PlaybackController.h
+    ${SRC_DIR}/playback/PlaybackController.cpp
 
-    src/infrastructure/mavlink/TlogParser.h
-    src/infrastructure/mavlink/TlogParser.cpp
+    ${SRC_DIR}/infrastructure/mavlink/TlogParser.h
+    ${SRC_DIR}/infrastructure/mavlink/TlogParser.cpp
 )
 
 qt_add_executable(

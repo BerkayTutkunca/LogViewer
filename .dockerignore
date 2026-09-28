@@ -1,0 +1,8 @@
+build/
+build*/
+.qtcreator/
+.qmlls.ini
+.git/
+*.user
+*.user.*
+*.tlog
