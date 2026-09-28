@@ -16,6 +16,7 @@ qreal PlaybackController::position() const
 {
     return m_position;
 }
+
 int PlaybackController::currentPositionIndex() const
 {
     if (m_currentIndex < 0 ||
@@ -64,6 +65,42 @@ double PlaybackController::altitude() const
     return m_positions.at(index).altitudeMeters;
 }
 
+bool PlaybackController::hasRoute() const
+{
+    return !m_positions.isEmpty();
+}
+
+QGeoCoordinate PlaybackController::initialCoordinate() const
+{
+    if (m_positions.isEmpty()) {
+        return {};
+    }
+
+    const GeoPosition& position =
+        m_positions.first();
+
+    return QGeoCoordinate(
+        position.latitude,
+        position.longitude,
+        position.altitudeMeters
+        );
+}
+
+QVariantList PlaybackController::traveledPath() const
+{
+    const int positionIndex =
+        currentPositionIndex();
+
+    if (positionIndex < 0) {
+        return {};
+    }
+
+    return m_routePath.mid(
+        0,
+        positionIndex + 1
+        );
+}
+
 QString PlaybackController::currentTime() const
 {
     if (m_timestamps.isEmpty()) {
@@ -71,7 +108,8 @@ QString PlaybackController::currentTime() const
     }
 
     const quint64 elapsed =
-        m_timestamps.at(m_currentIndex) - m_timestamps.first();
+        m_timestamps.at(m_currentIndex)
+        - m_timestamps.first();
 
     return formatTime(elapsed);
 }
@@ -83,7 +121,8 @@ QString PlaybackController::duration() const
     }
 
     const quint64 total =
-        m_timestamps.last() - m_timestamps.first();
+        m_timestamps.last()
+        - m_timestamps.first();
 
     return formatTime(total);
 }
@@ -103,6 +142,7 @@ void PlaybackController::setEntries(
     m_timestamps.clear();
     m_positions.clear();
     m_positionIndexByPacket.clear();
+    m_routePath.clear();
 
     m_timestamps.reserve(entries.size());
     m_positionIndexByPacket.reserve(entries.size());
@@ -110,12 +150,30 @@ void PlaybackController::setEntries(
     int lastPositionIndex = -1;
 
     for (const LogEntry& entry : entries) {
-        m_timestamps.append(entry.timestampUs());
+        m_timestamps.append(
+            entry.timestampUs()
+            );
 
-        const auto position = entry.position();
+        const auto position =
+            entry.position();
 
         if (position.has_value()) {
-            m_positions.append(position.value());
+            const GeoPosition& geoPosition =
+                position.value();
+
+            m_positions.append(
+                geoPosition
+                );
+
+            m_routePath.append(
+                QVariant::fromValue(
+                    QGeoCoordinate(
+                        geoPosition.latitude,
+                        geoPosition.longitude,
+                        geoPosition.altitudeMeters
+                        )
+                    )
+                );
 
             lastPositionIndex =
                 m_positions.size() - 1;
@@ -132,6 +190,8 @@ void PlaybackController::setEntries(
     emit currentIndexChanged();
     emit positionChanged();
     emit durationChanged();
+
+    emit routeChanged();
     emit currentPositionChanged();
 }
 
@@ -141,17 +201,25 @@ void PlaybackController::seek(qreal position)
         return;
     }
 
-    position = qBound(0.0, position, 1.0);
+    position = qBound(
+        0.0,
+        position,
+        1.0
+        );
 
-    const quint64 first = m_timestamps.first();
-    const quint64 last = m_timestamps.last();
+    const quint64 first =
+        m_timestamps.first();
+
+    const quint64 last =
+        m_timestamps.last();
 
     if (last <= first) {
         return;
     }
 
     const quint64 target =
-        first + static_cast<quint64>(
+        first
+        + static_cast<quint64>(
             (last - first) * position
             );
 
@@ -164,28 +232,47 @@ void PlaybackController::seek(qreal position)
     int newIndex;
 
     if (it == m_timestamps.cend()) {
-        newIndex = m_timestamps.size() - 1;
+        newIndex =
+            m_timestamps.size() - 1;
     } else {
-        newIndex = static_cast<int>(
-            std::distance(m_timestamps.cbegin(), it)
-            );
+        newIndex =
+            static_cast<int>(
+                std::distance(
+                    m_timestamps.cbegin(),
+                    it
+                    )
+                );
     }
 
-    const bool indexChanged =
+    const bool hasIndexChanged =
         newIndex != m_currentIndex;
 
-    const bool positionWasChanged =
-        !qFuzzyCompare(m_position, position);
+    const bool hasPlaybackPositionChanged =
+        !qFuzzyCompare(
+            m_position,
+            position
+            );
+
+    const int previousPositionIndex =
+        currentPositionIndex();
 
     m_currentIndex = newIndex;
     m_position = position;
 
-    if (indexChanged) {
+    const int newPositionIndex =
+        currentPositionIndex();
+
+    if (hasIndexChanged) {
         emit currentIndexChanged();
+    }
+
+    if (previousPositionIndex !=
+        newPositionIndex) {
+
         emit currentPositionChanged();
     }
 
-    if (positionWasChanged) {
+    if (hasPlaybackPositionChanged) {
         emit positionChanged();
     }
 }
@@ -212,14 +299,18 @@ QString PlaybackController::formatTime(
         totalMilliseconds % 1000;
 
     if (hours > 0) {
-        return QStringLiteral("%1:%2:%3.%4")
-        .arg(hours, 2, 10, QChar('0'))
+        return QStringLiteral(
+                   "%1:%2:%3.%4"
+                   )
+            .arg(hours, 2, 10, QChar('0'))
             .arg(minutes, 2, 10, QChar('0'))
             .arg(seconds, 2, 10, QChar('0'))
             .arg(milliseconds, 3, 10, QChar('0'));
     }
 
-    return QStringLiteral("%1:%2.%3")
+    return QStringLiteral(
+               "%1:%2.%3"
+               )
         .arg(minutes, 2, 10, QChar('0'))
         .arg(seconds, 2, 10, QChar('0'))
         .arg(milliseconds, 3, 10, QChar('0'));

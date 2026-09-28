@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QVector>
+#include <QVariantList>
+#include <QGeoCoordinate>
 
 #include "domain/LogEntry.h"
 
@@ -10,25 +12,35 @@ class PlaybackController : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int currentIndex
-                   READ currentIndex
-                       NOTIFY currentIndexChanged)
+    Q_PROPERTY(
+        int currentIndex
+            READ currentIndex
+                NOTIFY currentIndexChanged
+        )
 
-    Q_PROPERTY(qreal position
-                   READ position
-                       NOTIFY positionChanged)
+    Q_PROPERTY(
+        qreal position
+            READ position
+                NOTIFY positionChanged
+        )
 
-    Q_PROPERTY(QString currentTime
-                   READ currentTime
-                       NOTIFY currentIndexChanged)
+    Q_PROPERTY(
+        QString currentTime
+            READ currentTime
+                NOTIFY currentIndexChanged
+        )
 
-    Q_PROPERTY(QString duration
-                   READ duration
-                       NOTIFY durationChanged)
+    Q_PROPERTY(
+        QString duration
+            READ duration
+                NOTIFY durationChanged
+        )
 
-    Q_PROPERTY(int activePacket
-                   READ activePacket
-                       NOTIFY currentIndexChanged)
+    Q_PROPERTY(
+        int activePacket
+            READ activePacket
+                NOTIFY currentIndexChanged
+        )
 
     Q_PROPERTY(
         bool hasPosition
@@ -54,6 +66,24 @@ class PlaybackController : public QObject
                 NOTIFY currentPositionChanged
         )
 
+    Q_PROPERTY(
+        QVariantList traveledPath
+            READ traveledPath
+                NOTIFY currentPositionChanged
+        )
+
+    Q_PROPERTY(
+        bool hasRoute
+            READ hasRoute
+                NOTIFY routeChanged
+        )
+
+    Q_PROPERTY(
+        QGeoCoordinate initialCoordinate
+            READ initialCoordinate
+                NOTIFY routeChanged
+        )
+
 public:
     explicit PlaybackController(QObject *parent = nullptr);
 
@@ -66,10 +96,14 @@ public:
     int activePacket() const;
 
     bool hasPosition() const;
-
     double latitude() const;
     double longitude() const;
     double altitude() const;
+
+    QVariantList traveledPath() const;
+
+    bool hasRoute() const;
+    QGeoCoordinate initialCoordinate() const;
 
     void setEntries(const QVector<LogEntry>& entries);
 
@@ -79,20 +113,24 @@ signals:
     void currentIndexChanged();
     void positionChanged();
     void durationChanged();
+
     void currentPositionChanged();
+    void routeChanged();
 
 private:
     QString formatTime(quint64 microseconds) const;
 
-    QVector<quint64> m_timestamps;
+    int currentPositionIndex() const;
 
-    int m_currentIndex {0};
-    qreal m_position {0.0};
+    QVector<quint64> m_timestamps;
 
     QVector<GeoPosition> m_positions;
     QVector<int> m_positionIndexByPacket;
 
-    int currentPositionIndex() const;
+    QVariantList m_routePath;
+
+    int m_currentIndex {0};
+    qreal m_position {0.0};
 };
 
 #endif // PLAYBACKCONTROLLER_H

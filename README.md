@@ -13,7 +13,10 @@ The application is built with C++ and Qt Quick/QML. It provides timeline-based n
 - Timeline-based packet navigation
 - Synchronized active packet state
 - Position extraction from MAVLink telemetry
-- 2D map visualization (in progress)
+- 2D OpenStreetMap visualization
+- Timeline-synchronized vehicle marker
+- Progressive flight path visualization
+- Map pan and zoom controls
 
 ## Technologies
 
