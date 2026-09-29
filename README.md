@@ -89,10 +89,10 @@ The Docker image provides a Linux build environment containing the required Qt a
 The graphical application itself is intended to run in a desktop environment with display support.
 
 ## Project structure
-
 ```text
 LogViewer/
 |-- qml/
+|   |-- assets/
 |   |-- components/
 |   `-- pages/
 |-- src/
