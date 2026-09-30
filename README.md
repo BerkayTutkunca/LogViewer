@@ -18,6 +18,12 @@ The application is built with C++ and Qt Quick/QML. It provides timeline-based n
 - Progressive flight path visualization
 - Map pan and zoom controls
 
+## UI/UX Design
+
+The application interface was designed in Figma before being implemented with Qt Quick/QML.
+
+- [View the Figma design](https://www.figma.com/design/MectWJqzZVeS06mNQWL5sg/LogViewer-UI?m=auto&t=6GnnNgyCTjl7fHjy-1)
+
 ## Technologies
 
 - C++20
@@ -26,7 +32,8 @@ The application is built with C++ and Qt Quick/QML. It provides timeline-based n
 - CMake
 - MAVLink `c_library_v2`
 - Docker
-
+- Figma
+  
 ## Requirements
 
 For a native build:
@@ -34,7 +41,7 @@ For a native build:
 - CMake 3.21 or newer
 - Qt 6.8 or newer
 - C++20 compatible compiler
-- Internet connection for loading OpenStreetMap map tiles
+- An internet connection for loading OpenStreetMap map tiles
 
 Alternatively, Docker can be used to build the application in a Linux environment.
 
