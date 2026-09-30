@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QtGlobal>
+
 #include <optional>
 
 struct GeoPosition
@@ -32,12 +33,11 @@ public:
     quint8 systemId() const;
     quint8 componentId() const;
 
-    QString messageName() const;
-    QString payload() const;
+    const QString& messageName() const;
+    const QString& payload() const;
 
     std::optional<GeoPosition> position() const;
     void setPosition(const GeoPosition& position);
-
 
 private:
     quint64 m_timestampUs {};

@@ -3,7 +3,6 @@
 
 #include <QAbstractListModel>
 #include <QVector>
-
 #include "domain/LogEntry.h"
 
 class RawDataModel : public QAbstractListModel
@@ -15,24 +14,23 @@ public:
     {
         TimestampRole = Qt::UserRole + 1,
         MessageNameRole,
-        SourceInfoRole,
         PayloadRole
     };
 
-    explicit RawDataModel(QObject *parent = nullptr);
+    explicit RawDataModel(QObject* parent = nullptr);
 
     int rowCount(
-        const QModelIndex &parent = QModelIndex()
+        const QModelIndex& parent = QModelIndex()
         ) const override;
 
     QVariant data(
-        const QModelIndex &index,
+        const QModelIndex& index,
         int role = Qt::DisplayRole
         ) const override;
 
     QHash<int, QByteArray> roleNames() const override;
 
-    void setEntries(const QVector<LogEntry> &entries);
+    void setEntries(QVector<LogEntry> entries);
 
 private:
     QString formatTimestamp(quint64 timestampUs) const;

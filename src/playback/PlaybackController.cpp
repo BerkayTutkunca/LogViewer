@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-PlaybackController::PlaybackController(QObject *parent)
+PlaybackController::PlaybackController(QObject* parent)
     : QObject(parent)
 {
 }
@@ -156,25 +156,21 @@ void PlaybackController::setEntries(
     m_routePath.clear();
 
     m_timestamps.reserve(entries.size());
+    m_positions.reserve(entries.size());
     m_positionIndexByPacket.reserve(entries.size());
+    m_routePath.reserve(entries.size());
 
     int lastPositionIndex = -1;
 
     for (const LogEntry& entry : entries) {
-        m_timestamps.append(
-            entry.timestampUs()
-            );
+        m_timestamps.append(entry.timestampUs());
 
-        const auto position =
-            entry.position();
+        const auto position = entry.position();
 
-        if (position.has_value()) {
-            const GeoPosition& geoPosition =
-                position.value();
+        if (position) {
+            const GeoPosition& geoPosition = *position;
 
-            m_positions.append(
-                geoPosition
-                );
+            m_positions.append(geoPosition);
 
             m_routePath.append(
                 QVariant::fromValue(
@@ -187,12 +183,10 @@ void PlaybackController::setEntries(
                 );
 
             lastPositionIndex =
-                m_positions.size() - 1;
+                static_cast<int>(m_positions.size()) - 1;
         }
 
-        m_positionIndexByPacket.append(
-            lastPositionIndex
-            );
+        m_positionIndexByPacket.append(lastPositionIndex);
     }
 
     m_currentIndex = 0;
@@ -201,7 +195,6 @@ void PlaybackController::setEntries(
     emit currentIndexChanged();
     emit positionChanged();
     emit durationChanged();
-
     emit routeChanged();
     emit currentPositionChanged();
 }

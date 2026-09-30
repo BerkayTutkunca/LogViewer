@@ -2,8 +2,11 @@
 
 #include <QByteArray>
 #include <QFile>
+#include <QStringList>
 #include <QtEndian>
+
 #include <cstring>
+
 #include <common/mavlink.h>
 
 namespace
@@ -259,11 +262,6 @@ QString payloadToString(const mavlink_message_t& message)
     return fields.join(QStringLiteral(", "));
 }
 } // namespace
-
-TlogParser::TlogParser(QObject* parent)
-    : QObject(parent)
-{
-}
 
 bool TlogParser::parse(
     const QString& filePath,

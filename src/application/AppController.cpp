@@ -1,13 +1,15 @@
 #include "AppController.h"
 
-#include "infrastructure/mavlink/TlogParser.h"
+#include "domain/LogEntry.h"
 #include "models/RawDataModel.h"
-#include "playback/PlaybackController.h"
-#include <QFileInfo>
 
-AppController::AppController(QObject *parent)
+#include <QFileInfo>
+#include <QVector>
+
+#include <utility>
+
+AppController::AppController(QObject* parent)
     : QObject(parent),
-    m_tlogParser(new TlogParser(this)),
     m_rawDataModel(new RawDataModel(this)),
     m_playbackController(new PlaybackController(this))
 {
@@ -28,14 +30,18 @@ void AppController::loadLog(const QUrl& fileUrl)
     const QString filePath = fileUrl.toLocalFile();
 
     if (filePath.isEmpty()) {
-        emit loadFailed(QStringLiteral("Geçersiz dosya yolu."));
+        emit loadFailed(
+            QStringLiteral("Geçersiz dosya yolu.")
+            );
         return;
     }
 
     const QFileInfo fileInfo(filePath);
 
     if (!fileInfo.exists() || !fileInfo.isFile()) {
-        emit loadFailed(QStringLiteral("Dosya bulunamadı."));
+        emit loadFailed(
+            QStringLiteral("Dosya bulunamadı.")
+            );
         return;
     }
 
@@ -44,7 +50,9 @@ void AppController::loadLog(const QUrl& fileUrl)
             Qt::CaseInsensitive) != 0) {
 
         emit loadFailed(
-            QStringLiteral("Seçilen dosya .tlog formatında değil.")
+            QStringLiteral(
+                "Seçilen dosya .tlog formatında değil."
+                )
             );
         return;
     }
@@ -54,7 +62,7 @@ void AppController::loadLog(const QUrl& fileUrl)
     QVector<LogEntry> entries;
     QString errorMessage;
 
-    if (!m_tlogParser->parse(
+    if (!m_tlogParser.parse(
             filePath,
             entries,
             errorMessage)) {
@@ -63,10 +71,11 @@ void AppController::loadLog(const QUrl& fileUrl)
         return;
     }
 
-    m_entries = entries;
+    m_playbackController->setEntries(entries);
 
-    m_rawDataModel->setEntries(m_entries);
-    m_playbackController->setEntries(m_entries);
+    m_rawDataModel->setEntries(
+        std::move(entries)
+        );
 
     emit loadSucceeded();
 }

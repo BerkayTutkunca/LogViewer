@@ -37,12 +37,12 @@ quint8 LogEntry::componentId() const
     return m_componentId;
 }
 
-QString LogEntry::messageName() const
+const QString& LogEntry::messageName() const
 {
     return m_messageName;
 }
 
-QString LogEntry::payload() const
+const QString& LogEntry::payload() const
 {
     return m_payload;
 }

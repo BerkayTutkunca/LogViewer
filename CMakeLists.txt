@@ -28,7 +28,7 @@ add_library(mavlink INTERFACE)
 
 target_include_directories(
     mavlink
-    INTERFACE
+    SYSTEM INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mavlink
 )
 

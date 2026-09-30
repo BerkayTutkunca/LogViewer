@@ -1,31 +1,46 @@
 #include "RawDataModel.h"
+#include <utility>
 
-RawDataModel::RawDataModel(QObject *parent)
+namespace
+{
+
+constexpr quint64 UsPerMillisecond = 1'000;
+constexpr quint64 UsPerSecond = 1'000'000;
+constexpr quint64 UsPerMinute = 60 * UsPerSecond;
+constexpr quint64 UsPerHour = 60 * UsPerMinute;
+
+} // namespace
+
+RawDataModel::RawDataModel(QObject* parent)
     : QAbstractListModel(parent)
 {
 }
 
-int RawDataModel::rowCount(const QModelIndex &parent) const
+int RawDataModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) {
         return 0;
     }
 
-    return m_entries.size();
+    return static_cast<int>(m_entries.size());
 }
 
 QVariant RawDataModel::data(
-    const QModelIndex &index,
+    const QModelIndex& index,
     int role
     ) const
 {
-    if (!index.isValid()
-        || index.row() < 0
-        || index.row() >= m_entries.size()) {
+    if (!index.isValid()) {
         return {};
     }
 
-    const LogEntry &entry = m_entries.at(index.row());
+    const int row = index.row();
+
+    if (row < 0 || row >= m_entries.size()) {
+        return {};
+    }
+
+    const LogEntry& entry = m_entries.at(row);
 
     switch (role) {
     case TimestampRole:
@@ -33,11 +48,6 @@ QVariant RawDataModel::data(
 
     case MessageNameRole:
         return entry.messageName();
-
-    case SourceInfoRole:
-        return QStringLiteral("SYS %1 / COMP %2")
-            .arg(static_cast<int>(entry.systemId()))
-            .arg(static_cast<int>(entry.componentId()));
 
     case PayloadRole:
         return entry.payload();
@@ -52,16 +62,15 @@ QHash<int, QByteArray> RawDataModel::roleNames() const
     return {
         { TimestampRole, "timestamp" },
         { MessageNameRole, "messageName" },
-        { SourceInfoRole, "sourceInfo" },
         { PayloadRole, "payload" }
     };
 }
 
-void RawDataModel::setEntries(const QVector<LogEntry> &entries)
+void RawDataModel::setEntries(QVector<LogEntry> entries)
 {
     beginResetModel();
 
-    m_entries = entries;
+    m_entries = std::move(entries);
 
     endResetModel();
 }
@@ -81,16 +90,16 @@ QString RawDataModel::formatTimestamp(quint64 timestampUs) const
             : 0;
 
     const quint64 hours =
-        elapsedUs / 3600000000ULL;
+        elapsedUs / UsPerHour;
 
     const quint64 minutes =
-        (elapsedUs / 60000000ULL) % 60;
+        (elapsedUs / UsPerMinute) % 60;
 
     const quint64 seconds =
-        (elapsedUs / 1000000ULL) % 60;
+        (elapsedUs / UsPerSecond) % 60;
 
     const quint64 milliseconds =
-        (elapsedUs / 1000ULL) % 1000;
+        (elapsedUs / UsPerMillisecond) % 1000;
 
     return QStringLiteral("%1:%2:%3.%4")
         .arg(hours, 2, 10, QChar('0'))

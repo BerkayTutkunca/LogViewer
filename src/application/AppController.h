@@ -4,32 +4,21 @@
 #include <QAbstractItemModel>
 #include <QObject>
 #include <QUrl>
-#include <QVector>
 
-#include "domain/LogEntry.h"
+#include "infrastructure/mavlink/TlogParser.h"
 #include "playback/PlaybackController.h"
 
-class TlogParser;
 class RawDataModel;
 
 class AppController : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(
-        QAbstractItemModel* rawDataModel
-            READ rawDataModel
-                CONSTANT
-        )
-
-    Q_PROPERTY(
-        PlaybackController* playbackController
-            READ playbackController
-                CONSTANT
-        )
+    Q_PROPERTY(QAbstractItemModel* rawDataModel READ rawDataModel CONSTANT)
+    Q_PROPERTY(PlaybackController* playbackController READ playbackController CONSTANT)
 
 public:
-    explicit AppController(QObject *parent = nullptr);
+    explicit AppController(QObject* parent = nullptr);
 
     Q_INVOKABLE void loadLog(const QUrl& fileUrl);
 
@@ -42,11 +31,10 @@ signals:
     void loadFailed(const QString& errorMessage);
 
 private:
-    TlogParser* m_tlogParser;
+    TlogParser m_tlogParser;
+
     RawDataModel* m_rawDataModel;
     PlaybackController* m_playbackController;
-
-    QVector<LogEntry> m_entries;
 };
 
 #endif // APPCONTROLLER_H
