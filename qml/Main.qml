@@ -30,6 +30,7 @@ Window {
             root.currentPage === root.fileOpenPage
 
         onFileSelected: function(fileUrl) {
+            errorMessage = ""
             appController.loadLog(fileUrl)
         }
     }
@@ -168,18 +169,16 @@ Window {
         target: appController
 
         function onLoadStarted() {
-            console.log("Log yükleniyor...")
+            fileOpenPageItem.errorMessage = ""
         }
 
         function onLoadSucceeded() {
+            fileOpenPageItem.errorMessage = ""
             root.currentPage = root.mapPage
         }
 
         function onLoadFailed(errorMessage) {
-            console.log(
-                "Log yüklenemedi:",
-                errorMessage
-            )
+            fileOpenPageItem.errorMessage = errorMessage
         }
     }
 }

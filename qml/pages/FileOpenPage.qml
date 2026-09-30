@@ -4,6 +4,8 @@ import QtQuick.Dialogs
 Rectangle {
     id: root
 
+    property string errorMessage: ""
+
     signal fileSelected(url fileUrl)
 
     color: "#0f172a"
@@ -29,7 +31,29 @@ Rectangle {
 
             showFileType: false
 
-            onSelectFileClicked: fileDialog.open()
+            onSelectFileClicked: {
+                root.errorMessage = ""
+                fileDialog.open()
+            }
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: 360
+
+            visible: root.errorMessage.length > 0
+
+            text: root.errorMessage
+
+            color: "#ef4444"
+
+            font.family: "Inter"
+            font.pixelSize: 13
+            font.weight: Font.Normal
+
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
     }
 

@@ -34,8 +34,11 @@ For a native build:
 - CMake 3.21 or newer
 - Qt 6.8 or newer
 - C++20 compatible compiler
+- Internet connection for loading OpenStreetMap map tiles
 
 Alternatively, Docker can be used to build the application in a Linux environment.
+
+> Note: The application can parse and display `.tlog` data without an internet connection, but the 2D map requires internet access to load OpenStreetMap tiles.
 
 ## Clone
 
