@@ -3,9 +3,9 @@ import QtQuick
 Rectangle {
     id: root
 
-    property string latitude: "39.797434"
-    property string longitude: "32.458996"
-    property string altitude: "486.1 m"
+    property string latitude: "-"
+    property string longitude: "-"
+    property string altitude: "-"
 
     implicitWidth: 260
     implicitHeight: 187
