@@ -7,6 +7,7 @@
 #include <QVector>
 
 #include "domain/LogEntry.h"
+#include <QTimer>
 
 class PlaybackController : public QObject
 {
@@ -30,6 +31,11 @@ class PlaybackController : public QObject
 
     Q_PROPERTY(bool hasRoute READ hasRoute NOTIFY routeChanged)
     Q_PROPERTY(QGeoCoordinate initialCoordinate READ initialCoordinate NOTIFY routeChanged)
+
+    Q_PROPERTY(
+        bool playing
+        READ playing
+        NOTIFY playingChanged)
 
 public:
     explicit PlaybackController(QObject* parent = nullptr);
@@ -57,6 +63,11 @@ public:
 
     Q_INVOKABLE void seek(qreal position);
 
+    Q_INVOKABLE void play();
+    Q_INVOKABLE void pause();
+
+    bool playing() const;
+
 signals:
     void currentIndexChanged();
     void positionChanged();
@@ -64,6 +75,10 @@ signals:
 
     void currentPositionChanged();
     void routeChanged();
+
+
+
+    void playingChanged();
 
 private:
     QString formatTime(quint64 microseconds) const;
@@ -75,8 +90,12 @@ private:
 
     QVariantList m_routePath;
 
+
     int m_currentIndex {0};
     qreal m_position {0.0};
+
+    bool m_playing {false};
+    QTimer m_timer;
 };
 
 #endif // PLAYBACKCONTROLLER_H

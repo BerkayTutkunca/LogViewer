@@ -5,6 +5,128 @@
 PlaybackController::PlaybackController(QObject* parent)
     : QObject(parent)
 {
+    m_timer.setInterval(50);
+
+    connect(
+        &m_timer,
+        &QTimer::timeout,
+        this,
+        [this]()
+        {
+            if (m_timestamps.size() < 2) {
+                pause();
+                return;
+            }
+
+            const quint64 first = m_timestamps.first();
+            const quint64 last = m_timestamps.last();
+
+            if (last <= first) {
+                pause();
+                return;
+            }
+
+            const quint64 durationUs = last - first;
+
+            // Timer 50 ms -> microsecond
+            const qreal step =
+                static_cast<qreal>(m_timer.interval() * 1000)
+                / static_cast<qreal>(durationUs);
+
+            const qreal newPosition =
+                m_position + step;
+
+            if (newPosition >= 1.0) {
+                seek(1.0);
+                pause();
+                return;
+            }
+
+            seek(newPosition);
+        }
+        );
+}
+
+void PlaybackController::seek(qreal position)
+{
+    if (m_timestamps.isEmpty()) {
+        return;
+    }
+
+    position = qBound(
+        0.0,
+        position,
+        1.0
+        );
+
+    const quint64 first =
+        m_timestamps.first();
+
+    const quint64 last =
+        m_timestamps.last();
+
+    if (last <= first) {
+        return;
+    }
+
+    const quint64 target =
+        first
+        + static_cast<quint64>(
+            (last - first) * position
+            );
+
+    const auto it = std::lower_bound(
+        m_timestamps.cbegin(),
+        m_timestamps.cend(),
+        target
+        );
+
+    int newIndex;
+
+    if (it == m_timestamps.cend()) {
+        newIndex =
+            m_timestamps.size() - 1;
+    } else {
+        newIndex =
+            static_cast<int>(
+                std::distance(
+                    m_timestamps.cbegin(),
+                    it
+                    )
+                );
+    }
+
+    const bool hasIndexChanged =
+        newIndex != m_currentIndex;
+
+    const bool hasPlaybackPositionChanged =
+        !qFuzzyCompare(
+            m_position,
+            position
+            );
+
+    const int previousPositionIndex =
+        currentPositionIndex();
+
+    m_currentIndex = newIndex;
+    m_position = position;
+
+    const int newPositionIndex =
+        currentPositionIndex();
+
+    if (hasIndexChanged) {
+        emit currentIndexChanged();
+    }
+
+    if (previousPositionIndex !=
+        newPositionIndex) {
+
+        emit currentPositionChanged();
+    }
+
+    if (hasPlaybackPositionChanged) {
+        emit positionChanged();
+    }
 }
 
 int PlaybackController::currentIndex() const
@@ -147,9 +269,16 @@ int PlaybackController::activePacket() const
     return m_currentIndex + 1;
 }
 
+bool PlaybackController::playing() const
+{
+    return m_playing;
+}
+
 void PlaybackController::setEntries(
     const QVector<LogEntry>& entries)
 {
+    pause();
+
     m_timestamps.clear();
     m_positions.clear();
     m_positionIndexByPacket.clear();
@@ -199,86 +328,37 @@ void PlaybackController::setEntries(
     emit currentPositionChanged();
 }
 
-void PlaybackController::seek(qreal position)
+void PlaybackController::play()
 {
-    if (m_timestamps.isEmpty()) {
+    if (m_playing) {
         return;
     }
 
-    position = qBound(
-        0.0,
-        position,
-        1.0
-        );
-
-    const quint64 first =
-        m_timestamps.first();
-
-    const quint64 last =
-        m_timestamps.last();
-
-    if (last <= first) {
+    if (m_timestamps.size() < 2) {
         return;
     }
 
-    const quint64 target =
-        first
-        + static_cast<quint64>(
-            (last - first) * position
-            );
-
-    const auto it = std::lower_bound(
-        m_timestamps.cbegin(),
-        m_timestamps.cend(),
-        target
-        );
-
-    int newIndex;
-
-    if (it == m_timestamps.cend()) {
-        newIndex =
-            m_timestamps.size() - 1;
-    } else {
-        newIndex =
-            static_cast<int>(
-                std::distance(
-                    m_timestamps.cbegin(),
-                    it
-                    )
-                );
+    // Log sonundaysak tekrar başlat
+    if (m_position >= 1.0) {
+        seek(0.0);
     }
 
-    const bool hasIndexChanged =
-        newIndex != m_currentIndex;
+    m_playing = true;
+    emit playingChanged();
 
-    const bool hasPlaybackPositionChanged =
-        !qFuzzyCompare(
-            m_position,
-            position
-            );
+    m_timer.start();
+}
 
-    const int previousPositionIndex =
-        currentPositionIndex();
-
-    m_currentIndex = newIndex;
-    m_position = position;
-
-    const int newPositionIndex =
-        currentPositionIndex();
-
-    if (hasIndexChanged) {
-        emit currentIndexChanged();
+void PlaybackController::pause()
+{
+    if (!m_playing) {
+        return;
     }
 
-    if (previousPositionIndex !=
-        newPositionIndex) {
+    m_timer.stop();
 
-        emit currentPositionChanged();
-    }
-
-    if (hasPlaybackPositionChanged) {
-        emit positionChanged();
-    }
+    m_playing = false;
+    emit playingChanged();
 }
 
 QString PlaybackController::formatTime(

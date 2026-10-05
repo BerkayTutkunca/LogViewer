@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 Rectangle {
     id: root
@@ -141,7 +142,6 @@ Rectangle {
             anchors.fill: parent
 
             hoverEnabled: true
-
             cursorShape: Qt.PointingHandCursor
 
             function updatePosition(mouseX) {
@@ -165,6 +165,31 @@ Rectangle {
                 if (pressed) {
                     updatePosition(mouse.x)
                 }
+            }
+        }
+    }
+
+    Button {
+        id: playPauseButton
+
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+
+        width: 80
+        height: 30
+
+        text: appController.playbackController.playing
+              ? qsTr("Pause")
+              : qsTr("Play")
+
+        onClicked: {
+            if (appController.playbackController.playing) {
+                appController.playbackController.pause()
+            } else {
+                appController.playbackController.play()
             }
         }
     }
